@@ -1,6 +1,7 @@
 #!/usr/bin/python3
+
 """
-This module defines a City class
+A module that defines a User class which inherits BaseModel
 """
 
 from models.base_model import BaseModel
@@ -8,8 +9,11 @@ from models.base_model import BaseModel
 
 class City(BaseModel):
     """
-    Class for handling city instances
-    """
+    Defines all common attribute/methods for other classes
 
+    Attr:
+        state_id (str)
+        name (str)
+    """
     name = ""
     state_id = ""
