@@ -1,249 +1,235 @@
 #!/usr/bin/python3
-"""Defines unittests for models/place.py.
-
-Unittest classes:
-    TestPlace_instantiation
-    TestPlace_save
-    TestPlace_to_dict
 """
-import os
-import models
+This module is designed to test the City model
+"""
 import unittest
+import os
+from unittest.mock import patch
 from datetime import datetime
-from time import sleep
-from models.place import Place
+from io import StringIO
+import uuid
+import models.base_model
+from models.city import City
 
 
-class TestPlace_instantiation(unittest.TestCase):
-    """Unittests for testing instantiation of the Place class."""
+class TestCity(unittest.TestCase):
+    """
+    Class to define the unittest
+    """
 
-    def test_no_args_instantiates(self):
-        self.assertEqual(Place, type(Place()))
+    def test_City(self):
+        """
+        Test the CityModel class
+        """
+        b = City()
+        self.assertIsInstance(b, models.base_model.BaseModel)
+        self.assertTrue(issubclass(type(b), models.base_model.BaseModel))
+        with patch('models.base_model.uuid4') as mock_id:
+            mock_id.return_value = str(
+                uuid.UUID("b6a6e15c-c67d-4312-9a75-9d084935e579"))
 
-    def test_new_instance_stored_in_objects(self):
-        self.assertIn(Place(), models.storage.all().values())
+            base = City()
+            self.assertEqual(base.id, "b6a6e15c-c67d-4312-9a75-9d084935e579")
 
-    def test_id_is_public_str(self):
-        self.assertEqual(str, type(Place().id))
+        with patch('models.base_model.datetime') as mock_date:
+            mock_date.now.return_value = datetime(2022, 8, 7, 19, 2, 19, 10000)
+            mock_date.side_effect = lambda *args, **kw: datetime(*args, **kw)
 
-    def test_created_at_is_public_datetime(self):
-        self.assertEqual(datetime, type(Place().created_at))
+            base = City()
+            self.assertEqual(base.created_at, datetime(
+                2022, 8, 7, 19, 2, 19, 10000))
+            self.assertEqual(type(base.created_at), datetime)
+            self.assertEqual(base.updated_at, datetime(
+                2022, 8, 7, 19, 2, 19, 10000))
+            self.assertEqual(type(base.updated_at), datetime)
 
-    def test_updated_at_is_public_datetime(self):
-        self.assertEqual(datetime, type(Place().updated_at))
+        with patch('models.base_model.uuid4') as mock_id:
+            with patch('models.base_model.datetime') as mock_date:
+                mock_id.return_value = str(
+                    uuid.UUID("4c977185-d3f7-4aaa-a46f-c9d27ec4bd5e"))
+                mock_date.now.return_value = datetime(
+                    2022, 8, 7, 19, 2, 19, 10000)
+                mock_date.side_effect = lambda *args, **kw: datetime(
+                    *args, **kw)
+                b1 = City('foo')
+                self.assertEqual(b1.id, "4c977185-d3f7-4aaa-a46f-c9d27ec4bd5e")
+                self.assertEqual(b1.created_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.created_at), datetime)
+                self.assertEqual(b1.updated_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.updated_at), datetime)
 
-    def test_city_id_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(str, type(Place.city_id))
-        self.assertIn("city_id", dir(pl))
-        self.assertNotIn("city_id", pl.__dict__)
+                b1 = City(2)
+                self.assertEqual(b1.id, "4c977185-d3f7-4aaa-a46f-c9d27ec4bd5e")
+                self.assertEqual(b1.created_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.created_at), datetime)
+                self.assertEqual(b1.updated_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.updated_at), datetime)
 
-    def test_user_id_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(str, type(Place.user_id))
-        self.assertIn("user_id", dir(pl))
-        self.assertNotIn("user_id", pl.__dict__)
+                b1 = City({})
+                self.assertEqual(b1.id, "4c977185-d3f7-4aaa-a46f-c9d27ec4bd5e")
+                self.assertEqual(b1.created_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.created_at), datetime)
+                self.assertEqual(b1.updated_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.updated_at), datetime)
 
-    def test_name_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(str, type(Place.name))
-        self.assertIn("name", dir(pl))
-        self.assertNotIn("name", pl.__dict__)
+                b1 = City(2, 'foo')
+                self.assertEqual(b1.id, "4c977185-d3f7-4aaa-a46f-c9d27ec4bd5e")
+                self.assertEqual(b1.created_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.created_at), datetime)
+                self.assertEqual(b1.updated_at, datetime(
+                    2022, 8, 7, 19, 2, 19, 10000))
+                self.assertEqual(type(b1.updated_at), datetime)
 
-    def test_description_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(str, type(Place.description))
-        self.assertIn("description", dir(pl))
-        self.assertNotIn("desctiption", pl.__dict__)
+        clsdict = {"id": "56d43177-cc5f-4d6c-a0c1-e167f8c27337",
+                   "created_at": "2017-09-28T21:05:54.119434",
+                   "updated_at": "2017-09-28T21:05:54.119434",
+                   "__class__": "City"}
+        b2 = City(**clsdict)
+        self.assertEqual(b2.id, "56d43177-cc5f-4d6c-a0c1-e167f8c27337")
+        self.assertEqual(b2.created_at, datetime(
+            2017, 9, 28, 21, 5, 54, 119434))
+        self.assertEqual(type(b1.created_at), datetime)
+        self.assertEqual(b2.updated_at, datetime(
+            2017, 9, 28, 21, 5, 54, 119434))
+        self.assertEqual(type(b2.updated_at), datetime)
 
-    def test_number_rooms_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(int, type(Place.number_rooms))
-        self.assertIn("number_rooms", dir(pl))
-        self.assertNotIn("number_rooms", pl.__dict__)
+        clsdict = {"id": "56d43177-cc5f-4d6c-a0c1-e167f8c27337",
+                   "created_at": "2017-09-28T21:05:54.119434",
+                   "__class__": "City"}
+        b2 = City(**clsdict)
+        self.assertEqual(b2.id, "56d43177-cc5f-4d6c-a0c1-e167f8c27337")
+        self.assertEqual(b2.created_at, datetime(
+            2017, 9, 28, 21, 5, 54, 119434))
+        self.assertEqual(type(b1.created_at), datetime)
+        with self.assertRaises(AttributeError):
+            print(b2.updated_at)
 
-    def test_number_bathrooms_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(int, type(Place.number_bathrooms))
-        self.assertIn("number_bathrooms", dir(pl))
-        self.assertNotIn("number_bathrooms", pl.__dict__)
+        clsdict = {"id": "56d43177-cc5f-4d6c-a0c1-e167f8c27337",
+                   "__class__": "City"}
+        b2 = City(**clsdict)
+        self.assertEqual(b2.id, "56d43177-cc5f-4d6c-a0c1-e167f8c27337")
+        with self.assertRaises(AttributeError):
+            print(b2.created_at)
+        with self.assertRaises(AttributeError):
+            print(b2.updated_at)
 
-    def test_max_guest_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(int, type(Place.max_guest))
-        self.assertIn("max_guest", dir(pl))
-        self.assertNotIn("max_guest", pl.__dict__)
+    @ patch('sys.stdout', new_callable=StringIO)
+    def test_str(self, stdout):
+        """
+        Test the City class __str__ method
+        """
+        with patch('models.base_model.uuid4') as mock_id:
+            with patch('models.base_model.datetime') as mock_date:
+                mock_id.return_value = str(
+                    uuid.UUID("b6a6e15c-c67d-4312-9a75-9d084935e579"))
+                mock_date.now.return_value = datetime(
+                    2017, 9, 28, 21, 5, 54, 119434)
+                mock_date.side_effect = lambda *args, **kw: datetime(
+                    *args, **kw)
+                base = City()
+                print(base)
+                expted_out = ("[City] "
+                              "(b6a6e15c-c67d-4312-9a75-9d084935e579) "
+                              "{'id': 'b6a6e15c-c67d-4312-9a75-9d08493"
+                              "5e579', 'created_at': datetime.datetime"
+                              "(2017, 9, 28, 21, 5, 54, 119434), "
+                              "'updated_at': datetime.datetime(2017, "
+                              "9, 28, 21, 5, 54, 119434)}\n")
+                self.assertEqual(stdout.getvalue(), expted_out)
+                stdout.truncate(0)
+                stdout.seek(0)
 
-    def test_price_by_night_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(int, type(Place.price_by_night))
-        self.assertIn("price_by_night", dir(pl))
-        self.assertNotIn("price_by_night", pl.__dict__)
-
-    def test_latitude_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(float, type(Place.latitude))
-        self.assertIn("latitude", dir(pl))
-        self.assertNotIn("latitude", pl.__dict__)
-
-    def test_longitude_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(float, type(Place.longitude))
-        self.assertIn("longitude", dir(pl))
-        self.assertNotIn("longitude", pl.__dict__)
-
-    def test_amenity_ids_is_public_class_attribute(self):
-        pl = Place()
-        self.assertEqual(list, type(Place.amenity_ids))
-        self.assertIn("amenity_ids", dir(pl))
-        self.assertNotIn("amenity_ids", pl.__dict__)
-
-    def test_two_places_unique_ids(self):
-        pl1 = Place()
-        pl2 = Place()
-        self.assertNotEqual(pl1.id, pl2.id)
-
-    def test_two_places_different_created_at(self):
-        pl1 = Place()
-        sleep(0.05)
-        pl2 = Place()
-        self.assertLess(pl1.created_at, pl2.created_at)
-
-    def test_two_places_different_updated_at(self):
-        pl1 = Place()
-        sleep(0.05)
-        pl2 = Place()
-        self.assertLess(pl1.updated_at, pl2.updated_at)
-
-    def test_str_representation(self):
-        dt = datetime.today()
-        dt_repr = repr(dt)
-        pl = Place()
-        pl.id = "123456"
-        pl.created_at = pl.updated_at = dt
-        plstr = pl.__str__()
-        self.assertIn("[Place] (123456)", plstr)
-        self.assertIn("'id': '123456'", plstr)
-        self.assertIn("'created_at': " + dt_repr, plstr)
-        self.assertIn("'updated_at': " + dt_repr, plstr)
-
-    def test_args_unused(self):
-        pl = Place(None)
-        self.assertNotIn(None, pl.__dict__.values())
-
-    def test_instantiation_with_kwargs(self):
-        dt = datetime.today()
-        dt_iso = dt.isoformat()
-        pl = Place(id="345", created_at=dt_iso, updated_at=dt_iso)
-        self.assertEqual(pl.id, "345")
-        self.assertEqual(pl.created_at, dt)
-        self.assertEqual(pl.updated_at, dt)
-
-    def test_instantiation_with_None_kwargs(self):
+    def test_save(self):
+        """
+        Test the City class save method
+        """
+        PATH = 'file.json'
+        with patch('models.base_model.uuid4') as mock_id:
+            with patch('models.base_model.datetime') as mock_date:
+                mock_id.return_value = str(
+                    uuid.UUID("788f5f32-d874-4387-872c-e925314ba80a"))
+                mock_date.now.return_value = datetime(
+                    2017, 9, 28, 21, 5, 54, 119434)
+                mock_date.side_effect = lambda *args, **kw: datetime(
+                    *args, **kw)
+                base = City()
+                self.assertEqual(base.updated_at, datetime(
+                    2017, 9, 28, 21, 5, 54, 119434))
+                mock_date.now.return_value = datetime(
+                    2017, 9, 28, 21, 5, 54, 119572)
+                base.save()
+                self.assertEqual(base.updated_at, datetime(
+                    2017, 9, 28, 21, 5, 54, 119572))
+                self.assertEqual(os.path.isfile(
+                    PATH) and os.access(PATH, os.R_OK), True)
+                cont = self.write_file(PATH)
+                expected = ('"City.788f5f32-d874-4387-872c-e925314ba80a":'
+                            ' {"id": "788f5f32-d874-4387-872c-e925314ba80a", '
+                            '"created_at": "2017-09-28T21:05:54.119434", '
+                            '"updated_at": "2017-09-28T21:05:54.119572", '
+                            '"__class__": "City"}')
+                self.assertIn(expected, cont)
         with self.assertRaises(TypeError):
-            Place(id=None, created_at=None, updated_at=None)
-
-
-class TestPlace_save(unittest.TestCase):
-    """Unittests for testing save method of the Place class."""
-
-    @classmethod
-    def setUp(self):
-        try:
-            os.rename("file.json", "tmp")
-        except IOError:
-            pass
-
-    def tearDown(self):
-        try:
-            os.remove("file.json")
-        except IOError:
-            pass
-        try:
-            os.rename("tmp", "file.json")
-        except IOError:
-            pass
-
-    def test_one_save(self):
-        pl = Place()
-        sleep(0.05)
-        first_updated_at = pl.updated_at
-        pl.save()
-        self.assertLess(first_updated_at, pl.updated_at)
-
-    def test_two_saves(self):
-        pl = Place()
-        sleep(0.05)
-        first_updated_at = pl.updated_at
-        pl.save()
-        second_updated_at = pl.updated_at
-        self.assertLess(first_updated_at, second_updated_at)
-        sleep(0.05)
-        pl.save()
-        self.assertLess(second_updated_at, pl.updated_at)
-
-    def test_save_with_arg(self):
-        pl = Place()
+            base.save(2)
         with self.assertRaises(TypeError):
-            pl.save(None)
+            base.save('foo')
+        os.remove(PATH)
 
-    def test_save_updates_file(self):
-        pl = Place()
-        pl.save()
-        plid = "Place." + pl.id
-        with open("file.json", "r") as f:
-            self.assertIn(plid, f.read())
+    def test_to_dict(self):
+        """
+        Test the City class to_dict method
+        """
+        with patch('models.base_model.uuid4') as mock_id:
+            with patch('models.base_model.datetime') as mock_date:
+                mock_id.return_value = str(
+                    uuid.UUID("07331301-1393-4f7f-8da5-1f9be6216ad4"))
+                mock_date.now.return_value = datetime(
+                    2017, 9, 28, 21, 5, 54, 119434)
+                mock_date.side_effect = lambda *args, **kw: datetime(
+                    *args, **kw)
+                base = City()
+                clsdict = {"id": "07331301-1393-4f7f-8da5-1f9be6216ad4",
+                           "created_at": "2017-09-28T21:05:54.119434",
+                           "updated_at": "2017-09-28T21:05:54.119434",
+                           "__class__": "City"}
+                self.assertEqual(base.to_dict(), clsdict)
 
-
-class TestPlace_to_dict(unittest.TestCase):
-    """Unittests for testing to_dict method of the Place class."""
-
-    def test_to_dict_type(self):
-        self.assertTrue(dict, type(Place().to_dict()))
-
-    def test_to_dict_contains_correct_keys(self):
-        pl = Place()
-        self.assertIn("id", pl.to_dict())
-        self.assertIn("created_at", pl.to_dict())
-        self.assertIn("updated_at", pl.to_dict())
-        self.assertIn("__class__", pl.to_dict())
-
-    def test_to_dict_contains_added_attributes(self):
-        pl = Place()
-        pl.middle_name = "Holberton"
-        pl.my_number = 98
-        self.assertEqual("Holberton", pl.middle_name)
-        self.assertIn("my_number", pl.to_dict())
-
-    def test_to_dict_datetime_attributes_are_strs(self):
-        pl = Place()
-        pl_dict = pl.to_dict()
-        self.assertEqual(str, type(pl_dict["id"]))
-        self.assertEqual(str, type(pl_dict["created_at"]))
-        self.assertEqual(str, type(pl_dict["updated_at"]))
-
-    def test_to_dict_output(self):
-        dt = datetime.today()
-        pl = Place()
-        pl.id = "123456"
-        pl.created_at = pl.updated_at = dt
-        tdict = {
-            'id': '123456',
-            '__class__': 'Place',
-            'created_at': dt.isoformat(),
-            'updated_at': dt.isoformat(),
-        }
-        self.assertDictEqual(pl.to_dict(), tdict)
-
-    def test_contrast_to_dict_dunder_dict(self):
-        pl = Place()
-        self.assertNotEqual(pl.to_dict(), pl.__dict__)
-
-    def test_to_dict_with_arg(self):
-        pl = Place()
         with self.assertRaises(TypeError):
-            pl.to_dict(None)
+            base.to_dict(2)
+        with self.assertRaises(TypeError):
+            base.to_dict('foo')
 
+    def test_attrib(self):
+        """
+        Test the City class public attributes
+        """
+        b = City()
+        self.assertTrue(hasattr(b, 'name'))
+        self.assertEqual(b.name, "")
+        self.assertEqual(type(b.name), str)
 
-if __name__ == "__main__":
-    unittest.main()
+        self.assertTrue(hasattr(b, 'state_id'))
+        self.assertEqual(b.state_id, "")
+        self.assertEqual(type(b.state_id), str)
+
+    @staticmethod
+    def write_file(filename):
+        """
+        A function that opens and reads a file
+        Args:
+            filename (str)
+        Returns:
+            number of characters written into file
+        """
+        with open(filename, 'r', encoding="utf-8") as f:
+            text = ""
+            for line in f:
+                text += line
+            return text
