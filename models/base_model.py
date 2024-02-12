@@ -1,54 +1,69 @@
 #!/usr/bin/python3
-"""Base model script"""
+"""
+A module that defines a BaseModel class
+"""
 
+import models
+from uuid import uuid4
 from datetime import datetime
-import uuid
-from models import storage
 
 
 class BaseModel:
-    """Parent class for all other classes"""
+    """
+    Defines all common attribute/methods for other classes
+    """
 
     def __init__(self, *args, **kwargs):
-        """Sets up instance attributes
-
-        Args:
-            - *args: list of arguments
-            - **kwargs: dict of key-values arguments
         """
+        Instantiation method for class instances
 
-        if kwargs and kwargs != {}:
+        Arguments:
+            args (tuple): variadic number of positional arguments, not used
+            kwargs (dict): variadic number of key-words arguments
+        """
+        if kwargs != {} and len(kwargs) > 0:
             for key, value in kwargs.items():
-                if key == "created_at":
-                    self.__dict__["created_at"] = datetime.strptime(
-                        value, "%Y-%m-%dT%H:%M:%S.%f")
-                elif key == "updated_at":
-                    self.__dict__["updated_at"] = datetime.strptime(
-                        value, "%Y-%m-%dT%H:%M:%S.%f")
-                else:
-                    self.__dict__[key] = value
+                if key != '__class__':
+                    if key == 'created_at' or key == 'updated_at':
+                        setattr(self, key, datetime.fromisoformat(value))
+                    else:
+                        setattr(self, key, value)
         else:
-            self.id = str(uuid.uuid4())
-            self.created_at = self.updated_at = datetime.now()
-            storage.new(self)
+            self.id = str(uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            """Write new obj to json file"""
+            models.storage.new(self)
 
     def __str__(self):
-        """Gives official string representation"""
+        """
+        String representation of instances
 
-        return "[{}] ({}) {}".format(
-            self.__class__.__name__, self.id, self.__dict__)
+        Return:
+            (str): string representation of model instance
+        """
+        return "[{0}] ({1}) {2}".format(
+            self.__class__.__name__, self.id, self.__dict__
+        )
 
     def save(self):
-        """Updates the public instance attribute updated_at"""
-
+        """
+        Updates instance 'update_at' to the current datetime
+        """
         self.updated_at = datetime.now()
-        storage.save()
+        """Updates FileStorage private storage object"""
+        models.storage.new(self)
+        """Calls 'storage' save method"""
+        models.storage.save()
 
     def to_dict(self):
-        """Gives a dictionary with all keys/values of __dict__"""
-
-        new_dict = self.__dict__.copy()
-        new_dict["__class__"] = self.__class__.__name__
-        new_dict["created_at"] = new_dict["created_at"].isoformat()
-        new_dict["updated_at"] = new_dict["updated_at"].isoformat()
-        return new_dict
+        """
+        Return:
+            (dict): a dictionary containing all
+            keys/values of __dict__ of the instance
+        """
+        dictionary = self.__dict__.copy()
+        dictionary['created_at'] = self.created_at.isoformat()
+        dictionary['updated_at'] = self.updated_at.isoformat()
+        dictionary['__class__'] = self.__class__.__name__
+        return dictionary

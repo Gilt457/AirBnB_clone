@@ -1,13 +1,32 @@
 #!/usr/bin/python3
-"""Module for Place class"""
+
+"""
+A module that defines a Place class which inherits BaseModel
+"""
 
 from models.base_model import BaseModel
 
 
 class Place(BaseModel):
-    """Class for place objects"""
+    """
+    Defines all common attribute/methods for other classes
 
-    # Attributes
+    Attr:
+        id (str)
+        created_at (datetime)
+        updated_at (datetime)
+        city_id (str)
+        user_id (str)
+        name (str)
+        description (str)
+        number_rooms (int)
+        number_bathrooms (int)
+        max_guest (int)
+        price_by_night (int)
+        latitude (int)
+        longitude (int)
+        amenity_ids (int)
+    """
     city_id = ""
     user_id = ""
     name = ""
@@ -19,6 +38,3 @@ class Place(BaseModel):
     latitude = 0.0
     longitude = 0.0
     amenity_ids = []
-
-    # Methods
-    # No methods defined for this class
