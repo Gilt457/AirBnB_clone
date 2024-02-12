@@ -1,10 +1,17 @@
 #!/usr/bin/python3
-'''This module creates a Amenity class'''
+
+"""
+A module that defines a User class which inherits BaseModel
+"""
 
 from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
-    '''Class for managing amenity objects'''
+    """
+    Defines all common attribute/methods for other classes
 
-    amenity_name = ''
+    Attr:
+        name (str)
+    """
+    name = ""
